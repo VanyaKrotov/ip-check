@@ -1,3 +1,5 @@
+import type { TFunction } from "i18next";
+
 export function joinDefined(...values: Array<string | undefined | null>) {
   return values.filter(Boolean).join(", ");
 }
@@ -10,7 +12,10 @@ export function coordinateValue(lat?: number, lon?: number) {
   return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
 }
 
-export function booleanValue(value: boolean | undefined, t: (key: string) => string) {
+export function booleanValue(
+  value: boolean | undefined,
+  t: TFunction<"translation", undefined>,
+) {
   if (typeof value !== "boolean") {
     return undefined;
   }
