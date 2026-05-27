@@ -1,11 +1,10 @@
-import type { i18n as I18nInstance } from "i18next";
 import { Globe2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { LanguageSwitcher } from "~/components/ip-lookup/language-switcher";
 
-export function AppHeader({ i18n }: { i18n: I18nInstance }) {
-  const { t } = useTranslation();
+export function AppHeader() {
+  const { t, i18n } = useTranslation();
 
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
