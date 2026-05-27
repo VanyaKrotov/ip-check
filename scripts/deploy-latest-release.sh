@@ -3,7 +3,7 @@ set -eu
 
 REPO="${REPO:-VanyaKrotov/ip-check}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/ip-check}"
-APP_PORT="${APP_PORT:-3000}"
+APP_PORT="${APP_PORT:-80}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
 
 if [ -z "$REPO" ]; then
