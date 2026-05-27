@@ -28,7 +28,7 @@ const resources = {
     translation: {
       brand: "IP Check",
       metaTitle: "IP Check - IP lookup and geolocation",
-      metaDescription: "Check location, ISP, ASN, timezone and network information for any IP address.",
+      metaDescription: "Check IP geolocation, ISP, ASN, timezone, and network signals for any IP address or domain.",
       tagline: "Reliable IP intelligence",
       title: "Find location and network details for any IP address",
       subtitle:

@@ -1,0 +1,31 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#f5fbff"/>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1010" cy="72" r="168" fill="#a7f3d0" fill-opacity="0.35"/>
+  <circle cx="180" cy="520" r="210" fill="#bae6fd" fill-opacity="0.7"/>
+  <rect x="70" y="70" width="1060" height="490" rx="44" fill="white" fill-opacity="0.86" stroke="#bae6fd" stroke-width="3"/>
+  <rect x="96" y="96" width="88" height="88" rx="24" fill="#38a9ec"/>
+  <path d="M140 119c-20 0-36 16-36 36s16 36 36 36 36-16 36-36-16-36-36-36Zm0 0c10 10 16 23 16 36s-6 26-16 36m0-72c-10 10-16 23-16 36s6 26 16 36m-31-48h62m-62 32h62" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="210" y="135" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">IP Check</text>
+  <text x="210" y="174" fill="#64748b" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Reliable IP intelligence</text>
+  <text x="96" y="280" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="800">IP lookup and</text>
+  <text x="96" y="355" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="800">geolocation details</text>
+  <text x="96" y="420" fill="#475569" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="500">Check IP geolocation, ISP, ASN, and timezone</text>
+  <rect x="798" y="238" width="266" height="250" rx="28" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2"/>
+  <rect x="830" y="285" width="198" height="42" rx="12" fill="#e0f2fe"/>
+  <rect x="830" y="356" width="198" height="42" rx="12" fill="#e0f2fe"/>
+  <rect x="830" y="427" width="198" height="42" rx="12" fill="#e0f2fe"/>
+  <circle cx="854" cy="306" r="8" fill="#38a9ec"/>
+  <circle cx="854" cy="377" r="8" fill="#38a9ec"/>
+  <circle cx="854" cy="448" r="8" fill="#38a9ec"/>
+  <text x="884" y="315" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Location</text>
+  <text x="884" y="386" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Network</text>
+  <text x="884" y="457" fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700">Signals</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#eff6ff"/>
+      <stop offset="0.62" stop-color="#e0f2fe"/>
+      <stop offset="1" stop-color="#ccfbf1"/>
+    </linearGradient>
+  </defs>
+</svg>

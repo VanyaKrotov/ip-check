@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { metadataDescriptionSelector } from "~/utils/dom-selectors";
+import { metadataDescriptionSelector, socialDescriptionSelectors, socialTitleSelectors } from "~/utils/dom-selectors";
 
 export function usePageMetadata({
   description,
@@ -17,5 +17,13 @@ export function usePageMetadata({
 
     const descriptionElement = document.querySelector<HTMLMetaElement>(metadataDescriptionSelector);
     descriptionElement?.setAttribute("content", description);
+
+    socialTitleSelectors.forEach((selector) => {
+      document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", title);
+    });
+
+    socialDescriptionSelectors.forEach((selector) => {
+      document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", description);
+    });
   }, [description, language, title]);
 }
