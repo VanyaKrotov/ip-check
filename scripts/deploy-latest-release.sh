@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 set -eu
 
-REPO="${REPO:-}"
+REPO="${REPO:-VanyaKrotov/ip-check}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/ip-check}"
 APP_PORT="${APP_PORT:-3000}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-}"
