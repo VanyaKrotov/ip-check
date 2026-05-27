@@ -5,7 +5,6 @@ import { ApiAttributionFooter } from "~/components/ip-lookup/api-attribution-foo
 import { DetailsSection } from "~/components/ip-lookup/details-section";
 import { HeroSection } from "~/components/ip-lookup/hero-section";
 import type { LookupResult } from "~/utils/ip-lookup-types";
-import { useAutoLanguage } from "~/utils/use-auto-language";
 import { useCheckedAt } from "~/utils/use-checked-at";
 import { useIpLookup } from "~/utils/use-ip-lookup";
 import { usePageMetadata } from "~/utils/use-page-metadata";
@@ -18,11 +17,13 @@ export function IpLookupPage({
   initial: LookupResult | null;
 }) {
   const { i18n, t } = useTranslation();
-  const { input, query, setInput, submitLookup, target } = useIpLookup(defaultIp, initial);
+  const { input, query, setInput, submitLookup, target } = useIpLookup(
+    defaultIp,
+    initial,
+  );
   const ipInfo = query.data;
   const checkedAt = useCheckedAt(ipInfo?.checkedAt, i18n.resolvedLanguage);
 
-  useAutoLanguage(ipInfo?.countryCode, i18n as I18nInstance);
   usePageMetadata({
     description: t("metaDescription"),
     language: (i18n.resolvedLanguage || "en").slice(0, 2),
@@ -38,7 +39,12 @@ export function IpLookupPage({
         onInputChange={setInput}
         onSubmit={submitLookup}
       />
-      <DetailsSection checkedAt={checkedAt} ipInfo={ipInfo} isError={query.isError} target={target} />
+      <DetailsSection
+        checkedAt={checkedAt}
+        ipInfo={ipInfo}
+        isError={query.isError}
+        target={target}
+      />
       <ApiAttributionFooter />
     </main>
   );
