@@ -11,17 +11,6 @@ export const languageNames: Record<SupportedLanguage, string> = {
   ru: "Русский",
 };
 
-export const countryLanguageMap: Record<string, SupportedLanguage> = {
-  FI: "fi",
-  DE: "de",
-  AT: "de",
-  CH: "de",
-  PL: "pl",
-  RU: "ru",
-  BY: "ru",
-  KZ: "ru",
-};
-
 export function hasExplicitLanguage() {
   if (typeof window === "undefined") {
     return false;

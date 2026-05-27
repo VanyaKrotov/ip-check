@@ -4,31 +4,12 @@ import { useTranslation } from "react-i18next";
 import { ApiAttributionFooter } from "~/components/ip-lookup/api-attribution-footer";
 import { DetailsSection } from "~/components/ip-lookup/details-section";
 import { HeroSection } from "~/components/ip-lookup/hero-section";
-import type { LookupResult } from "~/utils/ip-lookup-types";
-import { useCheckedAt } from "~/utils/use-checked-at";
 import { useIpLookup } from "~/utils/use-ip-lookup";
-import { usePageMetadata } from "~/utils/use-page-metadata";
 
-export function IpLookupPage({
-  defaultIp,
-  initial,
-}: {
-  defaultIp: string;
-  initial: LookupResult | null;
-}) {
-  const { i18n, t } = useTranslation();
-  const { input, query, setInput, submitLookup, target } = useIpLookup(
-    defaultIp,
-    initial,
-  );
-  const ipInfo = query.data;
-  const checkedAt = useCheckedAt(ipInfo?.checkedAt, i18n.resolvedLanguage);
-
-  usePageMetadata({
-    description: t("metaDescription"),
-    language: (i18n.resolvedLanguage || "en").slice(0, 2),
-    title: t("metaTitle"),
-  });
+export function IpLookupPage({ defaultIp }: { defaultIp: string }) {
+  const { i18n } = useTranslation();
+  const { input, query, setInput, submitLookup, target } =
+    useIpLookup(defaultIp);
 
   return (
     <main className="min-h-screen overflow-hidden bg-background text-foreground">
@@ -40,8 +21,7 @@ export function IpLookupPage({
         onSubmit={submitLookup}
       />
       <DetailsSection
-        checkedAt={checkedAt}
-        ipInfo={ipInfo}
+        ipInfo={query.data}
         isError={query.isError}
         target={target}
       />

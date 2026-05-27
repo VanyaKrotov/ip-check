@@ -10,7 +10,7 @@ import { I18nextProvider } from "react-i18next";
 import { QueryClientProvider } from "@tanstack/react-query";
 
 import { getInstance } from "./middleware/i18next";
-import { makeQueryClient } from "./utils/query-client";
+import { getQuerySingleton } from "./middleware/query";
 
 export const streamTimeout = 1000 * 60;
 
@@ -19,11 +19,11 @@ export default async function handleRequest(
   responseStatusCode: number,
   responseHeaders: Headers,
   entryContext: EntryContext,
-  routerContext: RouterContextProvider,
+  context: RouterContextProvider,
 ) {
   const nonce = crypto.randomBytes(16).toString("base64");
-  const i18next = getInstance(routerContext);
-  const query = makeQueryClient();
+  const i18next = getInstance(context);
+  const query = getQuerySingleton(context);
 
   const body = await renderToReadableStream(
     <I18nextProvider i18n={i18next}>

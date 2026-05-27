@@ -1,35 +1,28 @@
-import { data, type LoaderFunctionArgs, useLoaderData } from "react-router";
+import { dehydrate } from "@tanstack/react-query";
+import { type LoaderFunctionArgs, useLoaderData } from "react-router";
 
 import { IpLookupPage } from "~/components/ip-lookup/ip-lookup-page";
-import { fetchIpInfo, readForwardedIp } from "~/lib/ip-api";
-import type { LookupResult } from "~/utils/ip-lookup-types";
+import { readForwardedIp } from "~/lib/ip-api";
+import { getQuerySingleton } from "~/middleware/query";
+import { getIpLookupQuery } from "~/utils/use-ip-lookup";
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const defaultIp = url.searchParams.get("default_ip")?.trim() || "";
   const inferredIp = readForwardedIp(request);
 
-  try {
-    const initial = await fetchIpInfo(defaultIp || inferredIp);
+  const query = getQuerySingleton(context);
 
-    return {
-      defaultIp,
-      initial: {
-        ...initial,
-        source: defaultIp ? "manual" : "request",
-        checkedAt: new Date().toISOString(),
-      } satisfies LookupResult,
-    };
-  } catch {
-    return data({
-      defaultIp,
-      initial: null,
-    });
-  }
+  await query.prefetchQuery(getIpLookupQuery(defaultIp, inferredIp));
+
+  return {
+    defaultIp,
+    dehydratedState: dehydrate(query),
+  };
 }
 
 export default function Home() {
-  const { defaultIp, initial } = useLoaderData<typeof loader>();
+  const { defaultIp } = useLoaderData<typeof loader>();
 
-  return <IpLookupPage defaultIp={defaultIp} initial={initial} />;
+  return <IpLookupPage defaultIp={defaultIp} />;
 }

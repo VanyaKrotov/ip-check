@@ -44,7 +44,7 @@ const fields = [
   "mobile",
 ].join(",");
 
-export async function fetchIpInfo(ip?: string | null) {
+export async function fetchIpInfo(ip?: string | null, signal?: AbortSignal) {
   const target = ip?.trim();
   const url = target
     ? `http://ip-api.com/json/${encodeURIComponent(target)}`
@@ -53,13 +53,17 @@ export async function fetchIpInfo(ip?: string | null) {
   const { data } = await axios.get<IpApiResponse>(url, {
     params: { fields },
     timeout: 8000,
+    signal,
   });
 
   if (data.status !== "success") {
     throw new Error(data.message || "IP lookup failed");
   }
 
-  return data;
+  return {
+    ...data,
+    checkedAt: new Date().toISOString(),
+  };
 }
 
 export function readForwardedIp(request: Request) {

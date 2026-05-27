@@ -26,12 +26,12 @@ async function main() {
       backend: { loadPath: "/_api/locales/{{lng}}/{{ns}}" },
     });
 
-  const client = makeQueryClient();
+  window.__TANSTACK_QUERY_CLIENT__ = makeQueryClient();
 
   startTransition(() => {
     hydrateRoot(
       document,
-      <QueryClientProvider client={client}>
+      <QueryClientProvider client={window.__TANSTACK_QUERY_CLIENT__}>
         <I18nextProvider i18n={i18next}>
           <StrictMode>
             <HydratedRouter />

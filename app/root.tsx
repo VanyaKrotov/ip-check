@@ -25,6 +25,7 @@ import { localeCookie } from "./locale.cookie";
 import { getDehydratedState } from "./utils/query-client";
 
 import "./styles.css";
+import { queryMiddleware } from "./middleware/query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -138,5 +139,5 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   );
 }
 
-export const middleware = [i18nextMiddleware];
-export const clientMiddleware = [i18nextMiddleware];
+export const middleware = [i18nextMiddleware, queryMiddleware];
+export const clientMiddleware = [i18nextMiddleware, queryMiddleware];

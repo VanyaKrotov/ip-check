@@ -1,31 +1,42 @@
-import axios from "axios";
 import { type FormEvent, useState } from "react";
 import { useSearchParams } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import type { LookupResult } from "~/utils/ip-lookup-types";
+import { fetchIpInfo } from "~/lib/ip-api";
 
-export function useIpLookup(defaultIp: string, initial: LookupResult | null) {
+import type { LookupResult } from "./ip-lookup-types";
+
+export const getIpLookupQuery = (
+  requestedIp: string | null,
+  defaultIp: string | null,
+) => {
+  const ipToLoad = requestedIp || defaultIp;
+
+  return queryOptions({
+    queryKey: ["ip-info", ipToLoad || "self"],
+    queryFn: async ({ signal }) => {
+      const data = await fetchIpInfo(ipToLoad, signal);
+
+      return {
+        ...data,
+        source: requestedIp ? "manual" : "request",
+      } as LookupResult;
+    },
+  });
+};
+
+export function useIpLookup(defaultIp: string) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [input, setInput] = useState(defaultIp);
-  const [target, setTarget] = useState(defaultIp);
 
-  const query = useQuery({
-    queryKey: ["ip-info", target || "self"],
-    queryFn: async () => {
-      const response = await axios.get<LookupResult>("/api/ip", {
-        params: target ? { ip: target } : undefined,
-      });
-      return response.data;
-    },
-    initialData: initial && (target || "") === (defaultIp || "") ? initial : undefined,
-  });
+  const requestedIp = searchParams.get("default_ip");
+  const target = requestedIp || defaultIp;
+
+  const query = useQuery(getIpLookupQuery(requestedIp, defaultIp));
 
   function submitLookup(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const normalized = input.trim();
-    setTarget(normalized);
-
     const nextParams = new URLSearchParams(searchParams);
     if (normalized) {
       nextParams.set("default_ip", normalized);
@@ -39,8 +50,8 @@ export function useIpLookup(defaultIp: string, initial: LookupResult | null) {
   return {
     input,
     query,
+    target,
     setInput,
     submitLookup,
-    target,
   };
 }
