@@ -1,0 +1,10 @@
+services:
+  ip-check:
+    image: ghcr.io/OWNER/REPOSITORY:latest
+    container_name: ip-check
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+    ports:
+      - "${APP_PORT:-3000}:3000"
