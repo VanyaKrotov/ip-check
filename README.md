@@ -135,6 +135,15 @@ Example:
 ```sh
 REPO=owner/ip-check APP_PORT=3000 ./scripts/deploy-latest-release.sh
 ```
+or
+
+```sh
+export REPO=owner/ip-check #optional
+export APP_PORT=3000 #optional. default: 80
+
+bash <(curl -fsSL https://raw.githubusercontent.com/VanyaKrotov/ip-check/main/scripts/deploy-latest-release.sh)
+```
+
 
 For private repositories, pass a GitHub token:
 
