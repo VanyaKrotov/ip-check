@@ -235,13 +235,29 @@ start_docker() {
 
   echo "Starting Docker service." >&2
   if command -v systemctl >/dev/null 2>&1; then
-    run_as_root systemctl enable --now docker
+    run_as_root systemctl enable docker || true
+    run_as_root systemctl start docker || true
   elif command -v service >/dev/null 2>&1; then
-    run_as_root service docker start
+    run_as_root service docker start || true
   else
     echo "Could not start Docker automatically. Start Docker and re-run this script." >&2
     exit 1
   fi
+
+  if docker info >/dev/null 2>&1; then
+    return
+  fi
+
+  if run_as_root docker info >/dev/null 2>&1; then
+    return
+  fi
+
+  echo "Docker daemon is not running or is not reachable." >&2
+  echo "Check the service with:" >&2
+  echo "  sudo systemctl status docker.service" >&2
+  echo "  sudo journalctl -xeu docker.service" >&2
+  echo "After fixing Docker, re-run this script." >&2
+  exit 1
 }
 
 start_nginx() {
