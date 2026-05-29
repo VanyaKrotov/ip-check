@@ -103,7 +103,7 @@ install_packages() {
 install_base_dependencies() {
   has_missing=0
 
-  for cmd in curl tar grep sed mktemp tr head; do
+  for cmd in curl tar grep sed mktemp tr head find dirname cp; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       has_missing=1
     fi
@@ -115,13 +115,13 @@ install_base_dependencies() {
 
     case "$manager" in
       apt | dnf | yum | pacman)
-        install_packages ca-certificates curl tar grep sed coreutils
+        install_packages ca-certificates curl tar grep sed findutils coreutils
         ;;
       apk)
-        install_packages ca-certificates curl tar grep sed coreutils
+        install_packages ca-certificates curl tar grep sed findutils coreutils
         ;;
       *)
-        echo "Could not install base dependencies automatically. Install ca-certificates, curl, tar, grep, sed, and coreutils." >&2
+        echo "Could not install base dependencies automatically. Install ca-certificates, curl, tar, grep, sed, findutils, and coreutils." >&2
         exit 1
         ;;
     esac
@@ -202,14 +202,30 @@ start_docker() {
 
 compose() {
   if docker compose version >/dev/null 2>&1; then
-    docker compose "$@"
+    if [ -n "${COMPOSE_FILE_PATH:-}" ]; then
+      docker compose -f "$COMPOSE_FILE_PATH" "$@"
+    else
+      docker compose "$@"
+    fi
   elif run_as_root docker compose version >/dev/null 2>&1; then
-    run_as_root docker compose "$@"
+    if [ -n "${COMPOSE_FILE_PATH:-}" ]; then
+      run_as_root docker compose -f "$COMPOSE_FILE_PATH" "$@"
+    else
+      run_as_root docker compose "$@"
+    fi
   elif command -v docker-compose >/dev/null 2>&1; then
     if docker-compose version >/dev/null 2>&1; then
-      docker-compose "$@"
+      if [ -n "${COMPOSE_FILE_PATH:-}" ]; then
+        docker-compose -f "$COMPOSE_FILE_PATH" "$@"
+      else
+        docker-compose "$@"
+      fi
     else
-      run_as_root docker-compose "$@"
+      if [ -n "${COMPOSE_FILE_PATH:-}" ]; then
+        run_as_root docker-compose -f "$COMPOSE_FILE_PATH" "$@"
+      else
+        run_as_root docker-compose "$@"
+      fi
     fi
   else
     echo "Docker Compose is not available" >&2
@@ -260,18 +276,48 @@ else
   curl -fsSL "$ASSET_URL" -o "$ARCHIVE"
 fi
 
-run_as_root mkdir -p "$INSTALL_DIR"
-run_as_root tar -xzf "$ARCHIVE" -C "$INSTALL_DIR" --strip-components=1
+BUNDLE_DIR="$TMP_DIR/bundle"
+mkdir -p "$BUNDLE_DIR"
+tar -xzf "$ARCHIVE" -C "$BUNDLE_DIR"
 
+COMPOSE_SOURCE="$(find "$BUNDLE_DIR" -name docker-compose.yml -type f | head -n 1)"
+if [ -z "$COMPOSE_SOURCE" ]; then
+  echo "Could not find docker-compose.yml in the release archive" >&2
+  exit 1
+fi
+
+RELEASE_DIR="$(dirname "$COMPOSE_SOURCE")"
 IMAGE="ghcr.io/$(printf '%s' "$REPO" | tr '[:upper:]' '[:lower:]'):latest"
-if [ -f "$INSTALL_DIR/docker-compose.yml" ]; then
-  run_as_root sed -i.bak "s#ghcr.io/OWNER/REPOSITORY:latest#$IMAGE#g" "$INSTALL_DIR/docker-compose.yml"
+COMPOSE_FILE_PATH="$INSTALL_DIR/docker-compose.yml"
+INSTALLED=0
+
+if [ -f "$COMPOSE_FILE_PATH" ]; then
+  INSTALLED=1
+  echo "Existing IP Check installation found in $INSTALL_DIR. Updating it." >&2
+else
+  echo "No existing IP Check installation found in $INSTALL_DIR. Installing it." >&2
+fi
+
+run_as_root mkdir -p "$INSTALL_DIR"
+run_as_root cp -R "$RELEASE_DIR/." "$INSTALL_DIR/"
+
+if [ -f "$COMPOSE_FILE_PATH" ]; then
+  run_as_root sed -i.bak "s#ghcr.io/OWNER/REPOSITORY:latest#$IMAGE#g" "$COMPOSE_FILE_PATH"
+else
+  echo "Could not find $COMPOSE_FILE_PATH after installing release files" >&2
+  exit 1
 fi
 
 cd "$INSTALL_DIR"
 export APP_PORT
 
 compose pull || true
-compose up -d --remove-orphans
+if [ "$INSTALLED" -eq 1 ]; then
+  compose up -d --force-recreate --remove-orphans
+  echo "IP Check has been updated and restarted on port $APP_PORT"
+else
+  compose up -d --remove-orphans
+  echo "IP Check has been installed and started on port $APP_PORT"
+fi
 
-echo "IP Check is running on port $APP_PORT"
+compose ps
