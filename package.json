@@ -2,7 +2,7 @@
   "name": "ip-check",
   "private": true,
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "dev": "react-router dev",
     "build": "react-router build",
