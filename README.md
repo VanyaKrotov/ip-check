@@ -131,6 +131,7 @@ ip-check-release-<tag>.tar.gz
 
 The `scripts/deploy-latest-release.sh` script downloads the latest GitHub Release archive and starts or updates the app on an Ubuntu server with Docker installed.
 If the install directory already contains `docker-compose.yml`, the script treats it as an existing installation, refreshes the release files, pulls the latest image, and recreates the container.
+The script requires Docker Compose v2 (`docker compose`) because legacy `docker-compose` v1 can fail on modern Docker images with `KeyError: 'ContainerConfig'`.
 
 Interactive usage:
 

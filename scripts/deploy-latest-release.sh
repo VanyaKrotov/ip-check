@@ -158,11 +158,16 @@ install_docker() {
 }
 
 install_compose() {
-  if docker compose version >/dev/null 2>&1 || command -v docker-compose >/dev/null 2>&1; then
+  if docker compose version >/dev/null 2>&1 || run_as_root docker compose version >/dev/null 2>&1; then
     return
   fi
 
-  echo "Docker Compose is not installed. Installing Compose support." >&2
+  if command -v docker-compose >/dev/null 2>&1; then
+    echo "Legacy docker-compose is installed, but Compose v2 is required. Installing Docker Compose plugin." >&2
+  else
+    echo "Docker Compose is not installed. Installing Compose v2 support." >&2
+  fi
+
   manager="$(detect_package_manager)"
 
   case "$manager" in
@@ -183,6 +188,12 @@ install_compose() {
       exit 1
       ;;
   esac
+
+  if ! docker compose version >/dev/null 2>&1 && ! run_as_root docker compose version >/dev/null 2>&1; then
+    echo "Docker Compose v2 is still not available after installation." >&2
+    echo "Install the docker-compose-plugin package or update Docker Engine, then re-run this script." >&2
+    exit 1
+  fi
 }
 
 install_nginx() {
@@ -276,6 +287,7 @@ compose() {
       run_as_root docker compose "$@"
     fi
   elif command -v docker-compose >/dev/null 2>&1; then
+    echo "Warning: falling back to legacy docker-compose. Compose v2 is recommended." >&2
     if docker-compose version >/dev/null 2>&1; then
       if [ -n "${COMPOSE_FILE_PATH:-}" ]; then
         docker-compose -f "$COMPOSE_FILE_PATH" "$@"
