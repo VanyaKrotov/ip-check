@@ -1,9 +1,31 @@
 import { useSearchParams } from "react-router";
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { fetchIpInfo } from "~/lib/ip-api";
-
 import type { LookupResult } from "./ip-lookup-types";
+
+async function fetchIpInfoFromRoute(
+  ip: string | null,
+  signal?: AbortSignal,
+): Promise<LookupResult> {
+  const params = new URLSearchParams();
+  if (ip) {
+    params.set("ip", ip);
+  }
+
+  const response = await fetch(`/api/ip-info?${params}`, {
+    signal,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  const data = (await response.json()) as LookupResult;
+
+  if (!response.ok || data.status !== "success") {
+    throw new Error(data.message || "IP lookup failed");
+  }
+
+  return data;
+}
 
 export const getIpLookupQuery = (
   requestedIp: string | null,
@@ -13,15 +35,11 @@ export const getIpLookupQuery = (
 
   return queryOptions({
     queryKey: ["ip-info", ipToLoad || "self"],
+    enabled: typeof window !== "undefined",
     refetchOnMount: false,
     retry: false,
     queryFn: async ({ signal }) => {
-      const data = await fetchIpInfo(ipToLoad, signal);
-
-      return {
-        ...data,
-        source: requestedIp ? "manual" : "request",
-      } as LookupResult;
+      return fetchIpInfoFromRoute(ipToLoad, signal);
     },
   });
 };

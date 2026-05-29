@@ -6,7 +6,7 @@ The app uses data from [ip-api.com](https://ip-api.com) and displays country, re
 
 ## Features
 
-- Detects the user's IP address in the browser through ip-api.com.
+- Detects the user's IP address from request headers when possible.
 - Supports manual lookup for any IPv4, IPv6, or domain.
 - Supports `default_ip` query parameter for prefilled lookups:
 
@@ -74,13 +74,24 @@ By default, the production server listens on port `3000`.
 
 ## API Behavior
 
-SSR renders the page shell with loading skeletons. After hydration, TanStack Query requests data directly from:
+SSR renders the page shell with loading skeletons. After hydration, TanStack Query requests data from the local server endpoint:
+
+```text
+/api/ip-info
+```
+
+The server route detects the client IP from request headers and requests data from:
 
 ```text
 http://ip-api.com/json
 ```
 
-If `default_ip` or a submitted IP value is present, that target is used. Otherwise, ip-api.com detects the browser's current public IP address.
+If `default_ip` or a submitted IP value is present, that target is used. Otherwise, the app attempts to infer the client IP from:
+
+- `cf-connecting-ip`
+- `true-client-ip`
+- `x-forwarded-for`
+- `x-real-ip`
 
 ## Docker
 
@@ -127,10 +138,19 @@ Interactive usage:
 bash <(curl -fsSL https://raw.githubusercontent.com/VanyaKrotov/ip-check/main/scripts/deploy-latest-release.sh)
 ```
 
+For Xray VLESS fallback with `xver: 1`, point Xray to the Nginx fallback port printed by the script:
+
+```json
+{
+  "dest": "127.0.0.1:8443",
+  "xver": 1
+}
+```
+
 Environment variables can still be used for unattended installs:
 
 ```sh
-REPO=owner/ip-check APP_PORT=3000 ./scripts/deploy-latest-release.sh
+REPO=owner/ip-check APP_PORT=3001 NGINX_FALLBACK_PORT=8443 ./scripts/deploy-latest-release.sh
 ```
 
 For private repositories, pass a GitHub token:
@@ -143,5 +163,6 @@ Optional environment variables:
 
 - `REPO`: GitHub repository in `owner/name` format. Defaults to `VanyaKrotov/ip-check`.
 - `INSTALL_DIR`: target directory on the server. Defaults to `/opt/ip-check`.
-- `APP_PORT`: public port exposed by Docker Compose. Defaults to `3001`.
+- `APP_PORT`: local host port used by Nginx to reach the Docker container. Defaults to `3001`.
+- `NGINX_FALLBACK_PORT`: local Nginx port that accepts Xray fallback traffic with PROXY protocol. Defaults to `8443`.
 - `GITHUB_TOKEN`: token for private repositories or higher API limits.

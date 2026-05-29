@@ -4,6 +4,7 @@ set -eu
 DEFAULT_REPO="VanyaKrotov/ip-check"
 DEFAULT_INSTALL_DIR="/opt/ip-check"
 DEFAULT_APP_PORT="3001"
+DEFAULT_NGINX_FALLBACK_PORT="8443"
 
 is_interactive() {
   [ -t 0 ]
@@ -184,6 +185,15 @@ install_compose() {
   esac
 }
 
+install_nginx() {
+  if command -v nginx >/dev/null 2>&1; then
+    return
+  fi
+
+  echo "Nginx is not installed. Installing Nginx for Xray fallback proxying." >&2
+  install_packages nginx
+}
+
 start_docker() {
   if docker info >/dev/null 2>&1; then
     return
@@ -198,6 +208,58 @@ start_docker() {
     echo "Could not start Docker automatically. Start Docker and re-run this script." >&2
     exit 1
   fi
+}
+
+start_nginx() {
+  if command -v systemctl >/dev/null 2>&1; then
+    run_as_root systemctl enable --now nginx
+  elif command -v service >/dev/null 2>&1; then
+    run_as_root service nginx start || run_as_root service nginx restart
+  fi
+}
+
+reload_nginx() {
+  if command -v systemctl >/dev/null 2>&1; then
+    run_as_root systemctl reload nginx
+  elif command -v service >/dev/null 2>&1; then
+    run_as_root service nginx reload || run_as_root service nginx restart
+  else
+    run_as_root nginx -s reload
+  fi
+}
+
+configure_nginx_proxy() {
+  NGINX_CONF_DIR="/etc/nginx/conf.d"
+  NGINX_CONF_FILE="$NGINX_CONF_DIR/ip-check.conf"
+  NGINX_CONF_TMP="$TMP_DIR/ip-check.nginx.conf"
+
+  cat > "$NGINX_CONF_TMP" <<EOF
+server {
+    listen 127.0.0.1:$NGINX_FALLBACK_PORT proxy_protocol;
+    server_name _;
+
+    set_real_ip_from 127.0.0.1;
+    real_ip_header proxy_protocol;
+
+    location / {
+        proxy_http_version 1.1;
+        proxy_pass http://127.0.0.1:$APP_PORT;
+
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$proxy_protocol_addr;
+        proxy_set_header X-Forwarded-For \$proxy_protocol_addr;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+EOF
+
+  run_as_root mkdir -p "$NGINX_CONF_DIR"
+  run_as_root cp "$NGINX_CONF_TMP" "$NGINX_CONF_FILE"
+  run_as_root nginx -t
+  start_nginx
+  reload_nginx
 }
 
 compose() {
@@ -236,11 +298,13 @@ compose() {
 REPO="${REPO:-$(ask_with_default "GitHub repository" "$DEFAULT_REPO")}"
 INSTALL_DIR="${INSTALL_DIR:-$(ask_with_default "Install directory" "$DEFAULT_INSTALL_DIR")}"
 APP_PORT="${APP_PORT:-$(ask_with_default "Public app port" "$DEFAULT_APP_PORT")}"
+NGINX_FALLBACK_PORT="${NGINX_FALLBACK_PORT:-$(ask_with_default "Nginx Xray fallback port" "$DEFAULT_NGINX_FALLBACK_PORT")}"
 GITHUB_TOKEN="${GITHUB_TOKEN:-$(ask_optional_secret "GitHub token for private repositories or higher API limits (optional)")}"
 
 install_base_dependencies
 install_docker
 install_compose
+install_nginx
 start_docker
 
 AUTH_HEADER=""
@@ -303,6 +367,7 @@ run_as_root cp -R "$RELEASE_DIR/." "$INSTALL_DIR/"
 
 if [ -f "$COMPOSE_FILE_PATH" ]; then
   run_as_root sed -i.bak "s#ghcr.io/OWNER/REPOSITORY:latest#$IMAGE#g" "$COMPOSE_FILE_PATH"
+  run_as_root sed -i.bak 's#- "${APP_PORT:-3000}:3000"#- "127.0.0.1:${APP_PORT:-3000}:3000"#g' "$COMPOSE_FILE_PATH"
 else
   echo "Could not find $COMPOSE_FILE_PATH after installing release files" >&2
   exit 1
@@ -320,4 +385,6 @@ else
   echo "IP Check has been installed and started on port $APP_PORT"
 fi
 
+configure_nginx_proxy
 compose ps
+echo "Configure Xray fallback dest to 127.0.0.1:$NGINX_FALLBACK_PORT with xver: 1"
