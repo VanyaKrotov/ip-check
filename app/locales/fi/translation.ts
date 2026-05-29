@@ -12,6 +12,7 @@ export default {
   language: "Kieli",
   ipPlaceholder: "Syötä IP-osoite tai verkkotunnus",
   lookup: "Hae",
+  resetLookup: "Tyhjennä haku",
   checking: "Haetaan...",
   currentIp: "Nykyinen IP",
   queryIp: "Hakukohde",

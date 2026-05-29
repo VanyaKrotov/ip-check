@@ -12,6 +12,7 @@ export function IpLookupPage({ defaultIp }: { defaultIp: string }) {
       <DetailsSection
         ipInfo={query.data}
         isError={query.isError}
+        isLoading={query.isPending}
         target={target}
       />
       <ApiAttributionFooter />

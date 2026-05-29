@@ -6,7 +6,7 @@ The app uses data from [ip-api.com](https://ip-api.com) and displays country, re
 
 ## Features
 
-- Detects the user's IP address from request headers when possible.
+- Detects the user's IP address in the browser through ip-api.com.
 - Supports manual lookup for any IPv4, IPv6, or domain.
 - Supports `default_ip` query parameter for prefilled lookups:
 
@@ -74,23 +74,13 @@ By default, the production server listens on port `3000`.
 
 ## API Behavior
 
-The browser calls the local SSR endpoint:
-
-```text
-/api/ip
-```
-
-The server then requests data from:
+SSR renders the page shell with loading skeletons. After hydration, TanStack Query requests data directly from:
 
 ```text
 http://ip-api.com/json
 ```
 
-If `default_ip` or a submitted IP value is present, that target is used. Otherwise, the app attempts to infer the client IP from:
-
-- `cf-connecting-ip`
-- `x-forwarded-for`
-- `x-real-ip`
+If `default_ip` or a submitted IP value is present, that target is used. Otherwise, ip-api.com detects the browser's current public IP address.
 
 ## Docker
 

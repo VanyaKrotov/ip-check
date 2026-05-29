@@ -10,10 +10,11 @@ import type { LookupResult } from "~/utils/ip-lookup-types";
 interface Props {
   ipInfo?: LookupResult;
   isError: boolean;
+  isLoading: boolean;
   target: string;
 }
 
-export function DetailsSection({ ipInfo, isError, target }: Props) {
+export function DetailsSection({ ipInfo, isError, isLoading, target }: Props) {
   const { i18n } = useTranslation();
   const checkedAt = useMemo(
     () =>
@@ -27,8 +28,18 @@ export function DetailsSection({ ipInfo, isError, target }: Props) {
 
   return (
     <section className="mx-auto grid w-full max-w-6xl gap-5 px-4 py-6 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:py-8">
-      <IpSummaryCard checkedAt={checkedAt} ipInfo={ipInfo} isError={isError} />
-      <IpMetricsGrid checkedAt={checkedAt} ipInfo={ipInfo} target={target} />
+      <IpSummaryCard
+        checkedAt={checkedAt}
+        ipInfo={ipInfo}
+        isError={isError}
+        isLoading={isLoading}
+      />
+      <IpMetricsGrid
+        checkedAt={checkedAt}
+        ipInfo={ipInfo}
+        isLoading={isLoading}
+        target={target}
+      />
     </section>
   );
 }

@@ -65,17 +65,3 @@ export async function fetchIpInfo(ip?: string | null, signal?: AbortSignal) {
     checkedAt: new Date().toISOString(),
   };
 }
-
-export function readForwardedIp(request: Request) {
-  const headers = request.headers;
-  const forwarded = headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-  const realIp = headers.get("x-real-ip")?.trim();
-  const cfIp = headers.get("cf-connecting-ip")?.trim();
-  const value = cfIp || forwarded || realIp;
-
-  if (!value || value === "::1" || value === "127.0.0.1") {
-    return null;
-  }
-
-  return value;
-}

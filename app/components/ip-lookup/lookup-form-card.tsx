@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router";
@@ -37,6 +37,18 @@ export function LookupFormCard({ isFetching, defaultIp }: Props) {
     setSearchParams(nextParams, { replace: true });
   }
 
+  function resetLookup() {
+    setInput("");
+    setSearchParams(
+      (prev) => {
+        prev.delete("default_ip");
+
+        return new URLSearchParams(prev);
+      },
+      { replace: true, preventScrollReset: true },
+    );
+  }
+
   return (
     <Card className="border-primary/20 bg-card/88 shadow-soft backdrop-blur">
       <CardHeader>
@@ -48,13 +60,29 @@ export function LookupFormCard({ isFetching, defaultIp }: Props) {
           className="flex flex-col gap-3 sm:flex-row"
           onSubmit={submitLookup}
         >
-          <Input
-            aria-label={t("queryIp")}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            placeholder={t("ipPlaceholder")}
-            title={t("enterToSearch")}
-          />
+          <div className="relative flex-1">
+            <Input
+              aria-label={t("queryIp")}
+              className="pr-11"
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+              placeholder={t("ipPlaceholder")}
+              title={t("enterToSearch")}
+            />
+            {input ? (
+              <Button
+                aria-label={t("resetLookup")}
+                className="absolute right-1 top-1 h-8 w-8"
+                onClick={resetLookup}
+                size="icon"
+                title={t("resetLookup")}
+                type="button"
+                variant="ghost"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            ) : null}
+          </div>
           <Button className="sm:min-w-32" type="submit" disabled={isFetching}>
             {isFetching ? t("checking") : t("lookup")}
             <ArrowRight className="h-4 w-4" />

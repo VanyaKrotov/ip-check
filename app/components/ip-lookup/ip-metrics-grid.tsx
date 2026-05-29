@@ -8,10 +8,12 @@ import { booleanValue, coordinateValue } from "~/utils/ip-format";
 export function IpMetricsGrid({
   checkedAt,
   ipInfo,
+  isLoading,
   target,
 }: {
   checkedAt: string;
   ipInfo?: LookupResult;
+  isLoading: boolean;
   target: string;
 }) {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ export function IpMetricsGrid({
     <div className="grid gap-5 md:grid-cols-2">
       <MetricCard
         icon={<MapPin className="h-5 w-5" />}
+        isLoading={isLoading}
         title={t("location")}
         rows={[
           [t("coordinates"), coordinateValue(ipInfo?.lat, ipInfo?.lon)],
@@ -29,6 +32,7 @@ export function IpMetricsGrid({
       />
       <MetricCard
         icon={<Network className="h-5 w-5" />}
+        isLoading={isLoading}
         title={t("network")}
         rows={[
           [t("isp"), ipInfo?.isp],
@@ -38,6 +42,7 @@ export function IpMetricsGrid({
       />
       <MetricCard
         icon={<Building2 className="h-5 w-5" />}
+        isLoading={isLoading}
         title={t("signals")}
         rows={[
           [t("reverseDns"), ipInfo?.reverse],
@@ -47,6 +52,7 @@ export function IpMetricsGrid({
       />
       <MetricCard
         icon={<Clock className="h-5 w-5" />}
+        isLoading={isLoading}
         title={t("request")}
         rows={[
           [t("queryIp"), target || t("currentIp")],

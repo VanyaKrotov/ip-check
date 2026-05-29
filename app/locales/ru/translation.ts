@@ -12,6 +12,7 @@ export default {
   language: "Язык",
   ipPlaceholder: "Введите IP-адрес или домен",
   lookup: "Проверить",
+  resetLookup: "Сбросить проверку",
   checking: "Проверяем...",
   currentIp: "Текущий IP",
   queryIp: "Цель проверки",

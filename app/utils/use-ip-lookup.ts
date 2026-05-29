@@ -14,6 +14,7 @@ export const getIpLookupQuery = (
   return queryOptions({
     queryKey: ["ip-info", ipToLoad || "self"],
     refetchOnMount: false,
+    retry: false,
     queryFn: async ({ signal }) => {
       const data = await fetchIpInfo(ipToLoad, signal);
 

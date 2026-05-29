@@ -12,6 +12,7 @@ export default {
   language: "Język",
   ipPlaceholder: "Wpisz adres IP lub domenę",
   lookup: "Sprawdź",
+  resetLookup: "Wyczyść sprawdzanie",
   checking: "Sprawdzanie...",
   currentIp: "Bieżący IP",
   queryIp: "Cel sprawdzania",

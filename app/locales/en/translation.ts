@@ -12,6 +12,7 @@ export default {
   language: "Language",
   ipPlaceholder: "Enter IP address or domain",
   lookup: "Lookup",
+  resetLookup: "Reset lookup",
   checking: "Checking...",
   currentIp: "Current IP",
   queryIp: "Lookup target",
