@@ -120,20 +120,17 @@ ip-check-release-<tag>.tar.gz
 
 The `scripts/deploy-latest-release.sh` script downloads the latest GitHub Release archive and starts or updates the app on an Ubuntu server with Docker installed.
 
-Example:
+Interactive usage:
+
+```sh
+bash <(curl -fsSL https://raw.githubusercontent.com/VanyaKrotov/ip-check/main/scripts/deploy-latest-release.sh)
+```
+
+Environment variables can still be used for unattended installs:
 
 ```sh
 REPO=owner/ip-check APP_PORT=3000 ./scripts/deploy-latest-release.sh
 ```
-or
-
-```sh
-export REPO=owner/ip-check #optional
-export APP_PORT=3000 #optional. default: 80
-
-bash <(curl -fsSL https://raw.githubusercontent.com/VanyaKrotov/ip-check/main/scripts/deploy-latest-release.sh)
-```
-
 
 For private repositories, pass a GitHub token:
 
@@ -143,7 +140,7 @@ REPO=owner/ip-check GITHUB_TOKEN=ghp_xxx ./scripts/deploy-latest-release.sh
 
 Optional environment variables:
 
-- `REPO`: GitHub repository in `owner/name` format. Required.
+- `REPO`: GitHub repository in `owner/name` format. Defaults to `VanyaKrotov/ip-check`.
 - `INSTALL_DIR`: target directory on the server. Defaults to `/opt/ip-check`.
-- `APP_PORT`: public port exposed by Docker Compose. Defaults to `3000`.
+- `APP_PORT`: public port exposed by Docker Compose. Defaults to `3001`.
 - `GITHUB_TOKEN`: token for private repositories or higher API limits.
