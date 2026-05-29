@@ -129,17 +129,39 @@ install_base_dependencies() {
   fi
 }
 
+configure_docker_apt_repository() {
+  run_as_root apt-get update
+  run_as_root apt-get install -y ca-certificates curl
+  run_as_root install -m 0755 -d /etc/apt/keyrings
+  run_as_root curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  run_as_root chmod a+r /etc/apt/keyrings/docker.asc
+
+  ARCH="$(dpkg --print-architecture)"
+  CODENAME="$(
+    . /etc/os-release
+    printf "%s" "${UBUNTU_CODENAME:-$VERSION_CODENAME}"
+  )"
+
+  DOCKER_LIST="/etc/apt/sources.list.d/docker.list"
+  DOCKER_LIST_TMP="/tmp/docker.list.$$"
+  printf "deb [arch=%s signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu %s stable\n" "$ARCH" "$CODENAME" > "$DOCKER_LIST_TMP"
+  run_as_root cp "$DOCKER_LIST_TMP" "$DOCKER_LIST"
+  rm -f "$DOCKER_LIST_TMP"
+  run_as_root apt-get update
+}
+
 install_docker() {
-  if command -v docker >/dev/null 2>&1; then
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
     return
   fi
 
-  echo "Docker is not installed. Installing Docker with the system package manager." >&2
+  echo "Installing Docker and Compose support." >&2
   manager="$(detect_package_manager)"
 
   case "$manager" in
     apt)
-      install_packages docker.io
+      configure_docker_apt_repository
+      run_as_root apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
       ;;
     dnf | yum)
       install_packages docker
@@ -172,7 +194,8 @@ install_compose() {
 
   case "$manager" in
     apt)
-      install_packages docker-compose-plugin || install_packages docker-compose
+      configure_docker_apt_repository
+      run_as_root apt-get install -y docker-compose-plugin
       ;;
     dnf | yum)
       install_packages docker-compose-plugin || install_packages docker-compose
