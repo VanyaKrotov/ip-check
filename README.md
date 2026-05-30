@@ -139,15 +139,6 @@ Interactive usage:
 bash <(curl -fsSL https://raw.githubusercontent.com/VanyaKrotov/ip-check/main/scripts/deploy-latest-release.sh)
 ```
 
-For Xray VLESS fallback with `xver: 1`, point Xray to the Nginx fallback port printed by the script:
-
-```json
-{
-  "dest": "127.0.0.1:8443",
-  "xver": 1
-}
-```
-
 Environment variables can still be used for unattended installs:
 
 ```sh
